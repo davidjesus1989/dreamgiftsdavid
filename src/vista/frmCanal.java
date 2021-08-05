@@ -23,6 +23,9 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import negocio.Canal;
+import javax.swing.event.*;
+import java.awt.event.*;
+import javax.swing.*;
 
 /**
  *
@@ -52,8 +55,7 @@ public class frmCanal extends javax.swing.JFrame {
          
     }
     
-
-             
+      
         
     
     /**
@@ -137,12 +139,21 @@ public class frmCanal extends javax.swing.JFrame {
 
         Tabla_canal.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-
+                {null, null,  new Boolean(false)}
             },
             new String [] {
                 "Código RRSS", "Nombre RRSS", "Estado"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        Tabla_canal.getTableHeader().setReorderingAllowed(false);
         Tabla_canal.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 Tabla_canalMouseClicked(evt);
@@ -150,7 +161,7 @@ public class frmCanal extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(Tabla_canal);
 
-        btn_editar.setText("Editar");
+        btn_editar.setText("Actualizar");
         btn_editar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_editarActionPerformed(evt);
@@ -171,6 +182,8 @@ public class frmCanal extends javax.swing.JFrame {
 
         jLabel3.setText("Código canal");
 
+        jtxt_CAN_ID_CANAL.setEditable(false);
+        jtxt_CAN_ID_CANAL.setEnabled(false);
         jtxt_CAN_ID_CANAL.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jtxt_CAN_ID_CANALActionPerformed(evt);
@@ -247,10 +260,10 @@ public class frmCanal extends javax.swing.JFrame {
                                 .addGap(18, 18, 18)
                                 .addComponent(btn_desactivar)
                                 .addGap(35, 35, 35))))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jPanel7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING))
+                            .addComponent(jScrollPane1))
                         .addContainerGap())))
         );
         jPanel1Layout.setVerticalGroup(
@@ -294,7 +307,7 @@ public class frmCanal extends javax.swing.JFrame {
     private void btn_cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_cancelarActionPerformed
       // TODO add your handling code here:
       this.jtxt_CAN_NOMBRE.setText("");
-      this.jtxt_CAN_ID_CANAL.setText("");  
+      
     }//GEN-LAST:event_btn_cancelarActionPerformed
 
     private void btn_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_guardarActionPerformed
@@ -312,7 +325,7 @@ public class frmCanal extends javax.swing.JFrame {
 
                 int est = 0;
                 
-                 pst.setString(1, jtxt_CAN_ID_CANAL.getText().trim());
+                 pst.setString(1, "0");
                  pst.setString(2, jtxt_CAN_NOMBRE.getText().trim());
                  pst.setInt(3, est);
                  
@@ -340,14 +353,15 @@ public class frmCanal extends javax.swing.JFrame {
   
                  }
          
-       
+       String est= "";
          
          String[]info = new String[3];
-         info[0]= jtxt_CAN_ID_CANAL.getText();
+         info[0]= "";
          info[1]= jtxt_CAN_NOMBRE.getText();
+         info[2]= "";
          modelo.addRow(info);
          
-        jtxt_CAN_ID_CANAL.setText("");
+        
         jtxt_CAN_NOMBRE.setText("");
        
          
@@ -362,19 +376,18 @@ public class frmCanal extends javax.swing.JFrame {
 
         try {
 
-            int CAN_ID_CANAL = Integer.parseInt(jtxt_CAN_ID_CANAL.getText());
+            //int CAN_ID_CANAL = Integer.parseInt(jtxt_CAN_ID_CANAL.getText());
             String URL_bd = "jdbc:mysql://localhost/dreamgifts";
             String usuario = "root";// este usuario es por default de mysql
             String contraseña = "";// depende de como entre a la consola de mysql
             Connection cn = DriverManager.getConnection(URL_bd, usuario, contraseña);
-            PreparedStatement pst = cn.prepareStatement("update canal set CAN_ID_CANAL=?,=?,CAN_NOMBRE=? where =CAN_ID_CANAL" + CAN_ID_CANAL);
+            PreparedStatement pst = cn.prepareStatement("update canal set CAN_ID_CANAL,=?,CAN_NOMBRE=? where =CAN_ID_CANAL");  //CAN_ID_CANAL);
 
-             //int est = 0;
             
-            pst.setString(1,  jtxt_CAN_ID_CANAL.getText().trim());
-            pst.setString(2,  jtxt_CAN_NOMBRE.getText().trim());
-            //pst.setInt(3, est);
-            pst.setIs(3, CAN_ESTADO.getSelectedItem().toString());         
+            
+                 pst.setString(1, "0");
+                 pst.setString(2, jtxt_CAN_NOMBRE.getText().trim());
+                 pst.setInt(3, 1);       
             
 
             pst.executeUpdate();
@@ -404,7 +417,7 @@ public class frmCanal extends javax.swing.JFrame {
     private void Tabla_canalMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Tabla_canalMouseClicked
        
         int cor = Tabla_canal.getSelectedRow();
-        jtxt_CAN_ID_CANAL.setText(Tabla_canal.getValueAt(cor, 0).toString());
+        //jtxt_CAN_ID_CANAL.setText(Tabla_canal.getValueAt(cor, 0).toString());
         jtxt_CAN_NOMBRE.setText(Tabla_canal.getValueAt(cor, 1).toString()); 
        
     }//GEN-LAST:event_Tabla_canalMouseClicked

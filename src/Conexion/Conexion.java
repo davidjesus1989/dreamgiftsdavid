@@ -36,6 +36,10 @@ public class Conexion {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    public PreparedStatement prepareStatement(String insert_into_canal, int RETURN_GENERATED_KEYS) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     
 }
 
