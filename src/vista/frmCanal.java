@@ -25,6 +25,10 @@ import javax.swing.table.TableColumn;
 import negocio.Canal;
 import javax.swing.event.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 
 /**
@@ -32,7 +36,12 @@ import javax.swing.*;
  * @author Usuario
  */
 
+  /** Creates new form ingresoproductos */
+   
+    
+    
 
+  
 
 public class frmCanal extends javax.swing.JFrame {
       DefaultTableModel modelo; 
@@ -41,23 +50,97 @@ public class frmCanal extends javax.swing.JFrame {
   Connection con=cone.ConexionBD();
   
   int id;
+  
+    DefaultTableModel model = new DefaultTableModel();  
+    PreparedStatement ps = null;
+    Statement st = null;
+    ResultSet rs = null; 
+    
+
+
+    
     /**
      * Creates new form canal
      */
     public frmCanal() {
         initComponents();
+        DesplegarDatosBusca("");
          setLocationRelativeTo(null);
          modelo=new DefaultTableModel();
          modelo.addColumn("Código RRSS");
          modelo.addColumn("Nombre RRSS");
          modelo.addColumn("Estado");
          this.Tabla_canal.setModel(modelo);
-         
-    }
+         MostrarDatos();
+        }  
     
-      
+    
+     
+    public void MostrarDatos(){
+        String [] titulos = {"Código RRSS", "Nombre RRSS", "Estado"};
+        String [] registros = new String [3];
         
-    
+        DefaultTableModel modelo = new DefaultTableModel(null, titulos); 
+        
+        String Sql = "select * from canal"; 
+        
+        try {
+           Statement st= con.createStatement();
+           ResultSet rs = st.executeQuery(Sql);
+           
+           while (rs.next()){
+               registros[0]=rs.getString("CAN_ID_CANAL");
+               registros[1]=rs.getString("CAN_NOMBRE");
+               registros[2]=rs.getString("CAN_ESTADO");
+                
+               
+               modelo.addRow(registros);
+               
+           }
+            Tabla_canal.setModel(modelo);
+          
+           
+        } catch(Exception e){
+            JOptionPane.showMessageDialog(null, "Error al mostrar datos" + e.getMessage());
+        }
+   
+   
+         
+
+    }     
+     
+    public void DesplegarDatosBusca(String valor){
+    DefaultTableModel modelo= new DefaultTableModel();
+    modelo.addColumn("Código RRSS");
+    modelo.addColumn("Nombre RRSS");
+    modelo.addColumn("Estado");
+    Tabla_canal.setModel(modelo);
+    String sql="";
+    if(valor.equals(""))
+    {
+        sql="SELECT * FROM canal";
+    }
+    else{
+        sql="SELECT * FROM canal WHERE CAN_NOMBRE='"+valor+"'";
+        //sql="SELECT * FROM canal WHERE CAN_ID_CANAL='"+valor+"'";
+    }
+ 
+    String []datos = new String [3];
+        try {
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            while(rs.next()){
+                datos[0]=rs.getString(1);
+                datos[1]=rs.getString(2);
+                datos[2]=rs.getString(3);
+                modelo.addRow(datos);
+            }
+            Tabla_canal.setModel(modelo);
+        } catch (SQLException ex) {
+            Logger.getLogger(frmCanal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+        
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -78,7 +161,7 @@ public class frmCanal extends javax.swing.JFrame {
         btn_editar = new javax.swing.JButton();
         btn_desactivar = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
+        jtxt_buscar = new javax.swing.JTextField();
         jPanel7 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jtxt_CAN_NOMBRE = new javax.swing.JTextField();
@@ -86,6 +169,9 @@ public class frmCanal extends javax.swing.JFrame {
         jtxt_CAN_ID_CANAL = new javax.swing.JTextField();
         btn_cancelar = new javax.swing.JButton();
         btn_guardar = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        btn_buscar = new javax.swing.JButton();
+        btn_reestalecer = new javax.swing.JButton();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -139,7 +225,7 @@ public class frmCanal extends javax.swing.JFrame {
 
         Tabla_canal.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null,  new Boolean(false)}
+                {null, null, null}
             },
             new String [] {
                 "Código RRSS", "Nombre RRSS", "Estado"
@@ -148,9 +234,16 @@ public class frmCanal extends javax.swing.JFrame {
             Class[] types = new Class [] {
                 java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
         Tabla_canal.getTableHeader().setReorderingAllowed(false);
@@ -160,6 +253,11 @@ public class frmCanal extends javax.swing.JFrame {
             }
         });
         jScrollPane1.setViewportView(Tabla_canal);
+        if (Tabla_canal.getColumnModel().getColumnCount() > 0) {
+            Tabla_canal.getColumnModel().getColumn(0).setResizable(false);
+            Tabla_canal.getColumnModel().getColumn(1).setResizable(false);
+            Tabla_canal.getColumnModel().getColumn(2).setResizable(false);
+        }
 
         btn_editar.setText("Actualizar");
         btn_editar.addActionListener(new java.awt.event.ActionListener() {
@@ -173,8 +271,17 @@ public class frmCanal extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel4.setText("Redes Sociales");
 
-        jTextField3.setText("Buscar");
-        jTextField3.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
+        jtxt_buscar.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
+        jtxt_buscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jtxt_buscarActionPerformed(evt);
+            }
+        });
+        jtxt_buscar.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jtxt_buscarKeyPressed(evt);
+            }
+        });
 
         jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), "Canales", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION));
 
@@ -183,7 +290,6 @@ public class frmCanal extends javax.swing.JFrame {
         jLabel3.setText("Código canal");
 
         jtxt_CAN_ID_CANAL.setEditable(false);
-        jtxt_CAN_ID_CANAL.setEnabled(false);
         jtxt_CAN_ID_CANAL.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jtxt_CAN_ID_CANALActionPerformed(evt);
@@ -237,8 +343,24 @@ public class frmCanal extends javax.swing.JFrame {
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btn_cancelar)
                     .addComponent(btn_guardar))
-                .addGap(0, 37, Short.MAX_VALUE))
+                .addContainerGap(37, Short.MAX_VALUE))
         );
+
+        jLabel1.setText("Buscar");
+
+        btn_buscar.setText("Buscar");
+        btn_buscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_buscarActionPerformed(evt);
+            }
+        });
+
+        btn_reestalecer.setText("Reestablecer");
+        btn_reestalecer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_reestalecerActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -252,9 +374,15 @@ public class frmCanal extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabel4)
-                                .addGap(137, 137, 137)
-                                .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(114, 114, 114))
+                                .addGap(85, 85, 85)
+                                .addComponent(jLabel1)
+                                .addGap(18, 18, 18)
+                                .addComponent(jtxt_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btn_buscar)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btn_reestalecer)
+                                .addContainerGap())
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                 .addComponent(btn_editar, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
@@ -274,8 +402,11 @@ public class frmCanal extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(30, 30, 30)
+                    .addComponent(jtxt_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1)
+                    .addComponent(btn_buscar)
+                    .addComponent(btn_reestalecer))
+                .addGap(28, 28, 28)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -307,14 +438,14 @@ public class frmCanal extends javax.swing.JFrame {
     private void btn_cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_cancelarActionPerformed
       // TODO add your handling code here:
       this.jtxt_CAN_NOMBRE.setText("");
-      
+      this.jtxt_CAN_ID_CANAL.setText("");
     }//GEN-LAST:event_btn_cancelarActionPerformed
 
     private void btn_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_guardarActionPerformed
         // TODO add your handling code here:
     
          if((jtxt_CAN_NOMBRE.getText().length() == 0)){
-                      JOptionPane.showMessageDialog(null, "No puede estar el campos nombre vacío", "ERROR", JOptionPane.ERROR_MESSAGE);  
+                      JOptionPane.showMessageDialog(null, "No puede estar el campo de nombre vacío", "ERROR", JOptionPane.ERROR_MESSAGE);  
                  } else {
                     try {
                 String URL_bd = "jdbc:mysql://localhost/dreamgifts";
@@ -322,20 +453,24 @@ public class frmCanal extends javax.swing.JFrame {
                 String contraseña = "";// depende de como entre a la consola de mysql
                 Connection cn = DriverManager.getConnection(URL_bd, usuario, contraseña);
                 PreparedStatement pst = cn.prepareStatement("insert into canal values(?,?,?)");
-
+                
                 int est = 0;
+          
+               
+                        
+                        
                 
                  pst.setString(1, "0");
                  pst.setString(2, jtxt_CAN_NOMBRE.getText().trim());
-                 pst.setInt(3, est);
+                 pst.setBoolean(3, true);
                  
                  
-                
-              
+                 
                
                
 
                 pst.executeUpdate();
+                MostrarDatos();
 
                 JOptionPane.showMessageDialog(null, "Se Guardo el Canal Correctamente", "AVISO", JOptionPane.INFORMATION_MESSAGE);
                
@@ -354,9 +489,13 @@ public class frmCanal extends javax.swing.JFrame {
                  }
          
        String est= "";
+       
+        
+
+   
          
          String[]info = new String[3];
-         info[0]= "";
+         info[0]= jtxt_CAN_ID_CANAL.getText();
          info[1]= jtxt_CAN_NOMBRE.getText();
          info[2]= "";
          modelo.addRow(info);
@@ -364,7 +503,8 @@ public class frmCanal extends javax.swing.JFrame {
         
         jtxt_CAN_NOMBRE.setText("");
        
-         
+    
+
          
     }//GEN-LAST:event_btn_guardarActionPerformed
 
@@ -374,6 +514,18 @@ public class frmCanal extends javax.swing.JFrame {
 
     private void btn_editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_editarActionPerformed
 
+        
+         try {
+        PreparedStatement pst = con.prepareStatement("UPDATE canal SET CAN_NOMBRE='"+jtxt_CAN_NOMBRE.getText()+"' WHERE CAN_ID_CANAL='"+jtxt_CAN_ID_CANAL.getText()+"'");
+        pst.executeUpdate();
+        JOptionPane.showMessageDialog(null, "Datos del usuario actualizados", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+        MostrarDatos();
+    } catch (Exception e) {
+        System.out.print(e.getMessage());
+          JOptionPane.showMessageDialog(null, "Error al intentar guardar el Canal", "AVISO", JOptionPane.ERROR_MESSAGE);
+    }
+        
+        /*
         try {
 
             //int CAN_ID_CANAL = Integer.parseInt(jtxt_CAN_ID_CANAL.getText());
@@ -381,20 +533,18 @@ public class frmCanal extends javax.swing.JFrame {
             String usuario = "root";// este usuario es por default de mysql
             String contraseña = "";// depende de como entre a la consola de mysql
             Connection cn = DriverManager.getConnection(URL_bd, usuario, contraseña);
-            PreparedStatement pst = cn.prepareStatement("update canal set CAN_ID_CANAL,=?,CAN_NOMBRE=? where =CAN_ID_CANAL");  //CAN_ID_CANAL);
+            PreparedStatement pst = cn.prepareStatement("update canal set CAN_NOMBRE=?, CAN_ID_CANAL=? where CAN_ID_CANAL=?"); //CAN_ID_CANAL);
 
-            
-            
-                 pst.setString(1, "0");
-                 pst.setString(2, jtxt_CAN_NOMBRE.getText().trim());
-                 pst.setInt(3, 1);       
-            
+            pst.setString(1, jtxt_CAN_ID_CANAL.getText());
+            pst.setString(2, jtxt_CAN_NOMBRE.getText());
+            pst.setBoolean(3, true);
+
 
             pst.executeUpdate();
-          //  limpiarBancos();
+          
 
             JOptionPane.showMessageDialog(null, "Datos del usuario actualizados", "Aviso", JOptionPane.INFORMATION_MESSAGE);
-           // limpiartablaBancos();
+          
         }
          catch (Exception ex) {
 
@@ -405,22 +555,53 @@ public class frmCanal extends javax.swing.JFrame {
 
                 ex.printStackTrace();
             }// 
-
+*/
+        
+        
         
     
            
    
-        
+
        
     }//GEN-LAST:event_btn_editarActionPerformed
 
     private void Tabla_canalMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Tabla_canalMouseClicked
        
         int cor = Tabla_canal.getSelectedRow();
-        //jtxt_CAN_ID_CANAL.setText(Tabla_canal.getValueAt(cor, 0).toString());
+        jtxt_CAN_ID_CANAL.setText(Tabla_canal.getValueAt(cor, 0).toString());
         jtxt_CAN_NOMBRE.setText(Tabla_canal.getValueAt(cor, 1).toString()); 
        
     }//GEN-LAST:event_Tabla_canalMouseClicked
+
+    private void jtxt_buscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jtxt_buscarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jtxt_buscarActionPerformed
+
+    private void jtxt_buscarKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jtxt_buscarKeyPressed
+    
+        
+      
+       
+       
+        
+         
+        
+        
+          
+       
+      
+       
+    }//GEN-LAST:event_jtxt_buscarKeyPressed
+
+    private void btn_buscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_buscarActionPerformed
+         DesplegarDatosBusca(jtxt_buscar.getText());
+    }//GEN-LAST:event_btn_buscarActionPerformed
+
+    private void btn_reestalecerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_reestalecerActionPerformed
+       MostrarDatos();
+       this.jtxt_buscar.setText("");
+    }//GEN-LAST:event_btn_reestalecerActionPerformed
 
     /**
      * @param args the command line arguments
@@ -460,10 +641,13 @@ public class frmCanal extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable Tabla_canal;
+    private javax.swing.JButton btn_buscar;
     private javax.swing.JButton btn_cancelar;
     private javax.swing.JButton btn_desactivar;
     private javax.swing.JButton btn_editar;
     private javax.swing.JButton btn_guardar;
+    private javax.swing.JButton btn_reestalecer;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -475,10 +659,8 @@ public class frmCanal extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jtxt_CAN_ID_CANAL;
     private javax.swing.JTextField jtxt_CAN_NOMBRE;
+    private javax.swing.JTextField jtxt_buscar;
     // End of variables declaration//GEN-END:variables
-
-}
-   
+        } 

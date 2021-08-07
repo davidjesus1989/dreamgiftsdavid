@@ -16,6 +16,10 @@ import javax.swing.table.DefaultTableModel;
  */
 
 public class Conexion {
+
+    public static Connection getconexion() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
       private Connection con;
     
@@ -32,13 +36,9 @@ public class Conexion {
         return con;
     }//fin metodo
 
-    public Connection getConnection() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+   
 
-    public PreparedStatement prepareStatement(String insert_into_canal, int RETURN_GENERATED_KEYS) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+   
 
     
 }
