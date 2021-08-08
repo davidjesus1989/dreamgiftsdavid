@@ -23,7 +23,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-import negocio.Canal;
+import controlador.Canal;
 import javax.swing.event.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -84,7 +84,7 @@ public class frmCanal extends javax.swing.JFrame {
         String [] titulos = {"Código RRSS", "Nombre RRSS", "Estado"};
         String [] registros = new String [3];
        DefaultTableModel modelo = new DefaultTableModel(null, titulos); 
-    
+      
      
        
         String Sql = "select * from canal"; 
@@ -234,11 +234,11 @@ public class frmCanal extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Código RRSS", "Nombre RRSS", "Estado"
+                "Estado", "Código RRSS", "Nombre RRSS"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class
+                java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false
@@ -262,9 +262,9 @@ public class frmCanal extends javax.swing.JFrame {
         Tabla_canal.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         if (Tabla_canal.getColumnModel().getColumnCount() > 0) {
             Tabla_canal.getColumnModel().getColumn(0).setResizable(false);
+            Tabla_canal.getColumnModel().getColumn(0).setPreferredWidth(20);
             Tabla_canal.getColumnModel().getColumn(1).setResizable(false);
             Tabla_canal.getColumnModel().getColumn(2).setResizable(false);
-            Tabla_canal.getColumnModel().getColumn(2).setPreferredWidth(20);
         }
 
         jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 200, 650, 107));

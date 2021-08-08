@@ -1,5 +1,5 @@
 
-package negocio;
+package controlador;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
