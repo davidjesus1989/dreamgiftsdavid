@@ -6,6 +6,7 @@
 package vista;
 
 import Conexion.Conexion;
+import java.awt.Component;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 
 /**
  *
@@ -66,22 +68,25 @@ public class frmCanal extends javax.swing.JFrame {
         initComponents();
         DesplegarDatosBusca("");
          setLocationRelativeTo(null);
-         modelo=new DefaultTableModel();
-         modelo.addColumn("Código RRSS");
-         modelo.addColumn("Nombre RRSS");
-         modelo.addColumn("Estado");
-         this.Tabla_canal.setModel(modelo);
+       //  modelo=new DefaultTableModel();
+       //  modelo.addColumn("Código RRSS");
+       //  modelo.addColumn("Nombre RRSS");
+       //  modelo.addColumn("Estado");
+       //  this.Tabla_canal.setModel(modelo);
          MostrarDatos();
         }  
     
-    
-     
+
+
+   
+  
     public void MostrarDatos(){
         String [] titulos = {"Código RRSS", "Nombre RRSS", "Estado"};
         String [] registros = new String [3];
-        
-        DefaultTableModel modelo = new DefaultTableModel(null, titulos); 
-        
+       DefaultTableModel modelo = new DefaultTableModel(null, titulos); 
+    
+     
+       
         String Sql = "select * from canal"; 
         
         try {
@@ -92,29 +97,29 @@ public class frmCanal extends javax.swing.JFrame {
                registros[0]=rs.getString("CAN_ID_CANAL");
                registros[1]=rs.getString("CAN_NOMBRE");
                registros[2]=rs.getString("CAN_ESTADO");
-                
+               
                
                modelo.addRow(registros);
                
            }
+           
             Tabla_canal.setModel(modelo);
-          
+         
            
         } catch(Exception e){
             JOptionPane.showMessageDialog(null, "Error al mostrar datos" + e.getMessage());
         }
    
-   
+
          
 
-    }     
+}  
      
     public void DesplegarDatosBusca(String valor){
     DefaultTableModel modelo= new DefaultTableModel();
     modelo.addColumn("Código RRSS");
     modelo.addColumn("Nombre RRSS");
     modelo.addColumn("Estado");
-    Tabla_canal.setModel(modelo);
     String sql="";
     if(valor.equals(""))
     {
@@ -169,7 +174,6 @@ public class frmCanal extends javax.swing.JFrame {
         jtxt_CAN_ID_CANAL = new javax.swing.JTextField();
         btn_cancelar = new javax.swing.JButton();
         btn_guardar = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
         btn_buscar = new javax.swing.JButton();
         btn_reestalecer = new javax.swing.JButton();
 
@@ -220,12 +224,14 @@ public class frmCanal extends javax.swing.JFrame {
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         Tabla_canal.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null}
+
             },
             new String [] {
                 "Código RRSS", "Nombre RRSS", "Estado"
@@ -246,18 +252,22 @@ public class frmCanal extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        Tabla_canal.getTableHeader().setReorderingAllowed(false);
+        Tabla_canal.setColumnSelectionAllowed(true);
         Tabla_canal.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 Tabla_canalMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(Tabla_canal);
+        Tabla_canal.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         if (Tabla_canal.getColumnModel().getColumnCount() > 0) {
             Tabla_canal.getColumnModel().getColumn(0).setResizable(false);
             Tabla_canal.getColumnModel().getColumn(1).setResizable(false);
             Tabla_canal.getColumnModel().getColumn(2).setResizable(false);
+            Tabla_canal.getColumnModel().getColumn(2).setPreferredWidth(20);
         }
+
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 200, 650, 107));
 
         btn_editar.setText("Actualizar");
         btn_editar.addActionListener(new java.awt.event.ActionListener() {
@@ -265,11 +275,14 @@ public class frmCanal extends javax.swing.JFrame {
                 btn_editarActionPerformed(evt);
             }
         });
+        jPanel1.add(btn_editar, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 320, 100, -1));
 
         btn_desactivar.setText("Desactivar");
+        jPanel1.add(btn_desactivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 320, -1, -1));
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel4.setText("Redes Sociales");
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 160, -1, -1));
 
         jtxt_buscar.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
         jtxt_buscar.addActionListener(new java.awt.event.ActionListener() {
@@ -282,6 +295,7 @@ public class frmCanal extends javax.swing.JFrame {
                 jtxt_buscarKeyPressed(evt);
             }
         });
+        jPanel1.add(jtxt_buscar, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 160, 80, -1));
 
         jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)), "Canales", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.DEFAULT_POSITION));
 
@@ -323,7 +337,7 @@ public class frmCanal extends javax.swing.JFrame {
                 .addComponent(jLabel3)
                 .addGap(18, 18, 18)
                 .addComponent(jtxt_CAN_ID_CANAL, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(113, Short.MAX_VALUE))
+                .addContainerGap(104, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btn_cancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -346,7 +360,7 @@ public class frmCanal extends javax.swing.JFrame {
                 .addContainerGap(37, Short.MAX_VALUE))
         );
 
-        jLabel1.setText("Buscar");
+        jPanel1.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 650, -1));
 
         btn_buscar.setText("Buscar");
         btn_buscar.addActionListener(new java.awt.event.ActionListener() {
@@ -354,6 +368,7 @@ public class frmCanal extends javax.swing.JFrame {
                 btn_buscarActionPerformed(evt);
             }
         });
+        jPanel1.add(btn_buscar, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 160, 80, -1));
 
         btn_reestalecer.setText("Reestablecer");
         btn_reestalecer.addActionListener(new java.awt.event.ActionListener() {
@@ -361,76 +376,9 @@ public class frmCanal extends javax.swing.JFrame {
                 btn_reestalecerActionPerformed(evt);
             }
         });
+        jPanel1.add(btn_reestalecer, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 160, 110, -1));
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addGap(85, 85, 85)
-                                .addComponent(jLabel1)
-                                .addGap(18, 18, 18)
-                                .addComponent(jtxt_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btn_buscar)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btn_reestalecer)
-                                .addContainerGap())
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addComponent(btn_editar, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(btn_desactivar)
-                                .addGap(35, 35, 35))))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jPanel7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jScrollPane1))
-                        .addContainerGap())))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(jtxt_buscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1)
-                    .addComponent(btn_buscar)
-                    .addComponent(btn_reestalecer))
-                .addGap(28, 28, 28)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btn_desactivar)
-                    .addComponent(btn_editar))
-                .addGap(74, 74, 74))
-        );
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(46, 46, 46)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 372, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(46, Short.MAX_VALUE))
-        );
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 710, 370));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -493,7 +441,7 @@ public class frmCanal extends javax.swing.JFrame {
         
 
    
-         
+      /*   
          String[]info = new String[3];
          info[0]= jtxt_CAN_ID_CANAL.getText();
          info[1]= jtxt_CAN_NOMBRE.getText();
@@ -503,7 +451,7 @@ public class frmCanal extends javax.swing.JFrame {
         
         jtxt_CAN_NOMBRE.setText("");
        
-    
+    */
 
          
     }//GEN-LAST:event_btn_guardarActionPerformed
@@ -518,7 +466,7 @@ public class frmCanal extends javax.swing.JFrame {
          try {
         PreparedStatement pst = con.prepareStatement("UPDATE canal SET CAN_NOMBRE='"+jtxt_CAN_NOMBRE.getText()+"' WHERE CAN_ID_CANAL='"+jtxt_CAN_ID_CANAL.getText()+"'");
         pst.executeUpdate();
-        JOptionPane.showMessageDialog(null, "Datos del usuario actualizados", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Nombre de canal actualizado", "Aviso", JOptionPane.INFORMATION_MESSAGE);
         MostrarDatos();
     } catch (Exception e) {
         System.out.print(e.getMessage());
@@ -647,7 +595,6 @@ public class frmCanal extends javax.swing.JFrame {
     private javax.swing.JButton btn_editar;
     private javax.swing.JButton btn_guardar;
     private javax.swing.JButton btn_reestalecer;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -663,4 +610,6 @@ public class frmCanal extends javax.swing.JFrame {
     private javax.swing.JTextField jtxt_CAN_NOMBRE;
     private javax.swing.JTextField jtxt_buscar;
     // End of variables declaration//GEN-END:variables
+
+  
         } 

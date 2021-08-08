@@ -1,6 +1,9 @@
 
 package negocio;
 
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author rafay
@@ -45,8 +48,6 @@ public class Canal {
     public void setCAN_ESTADO(boolean CAN_ESTADO) {
         this.CAN_ESTADO = CAN_ESTADO;
     }
-    
-    
     
     
 }
