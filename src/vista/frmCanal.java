@@ -6,6 +6,7 @@
 package vista;
 
 import Conexion.Conexion;
+import static com.sun.source.tree.Tree.Kind.AND;
 import java.awt.Component;
 import java.sql.Connection;
 import java.sql.Date;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
 /**
@@ -78,42 +80,62 @@ public class frmCanal extends javax.swing.JFrame {
     
 
 
+
    
   
     public void MostrarDatos(){
+        
+       
+    
+      
         String [] titulos = {"Código RRSS", "Nombre RRSS", "Estado"};
         String [] registros = new String [3];
-       DefaultTableModel modelo = new DefaultTableModel(null, titulos); 
+        
+       
+       
       
+      DefaultTableModel modelo = new DefaultTableModel(null, titulos); 
+     
+      
+
+
      
        
-        String Sql = "select * from canal"; 
-        
+        String Sql = "select * from canal";
+
         try {
-           Statement st= con.createStatement();
-           ResultSet rs = st.executeQuery(Sql);
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(Sql);
+          
            
-           while (rs.next()){
-               registros[0]=rs.getString("CAN_ID_CANAL");
-               registros[1]=rs.getString("CAN_NOMBRE");
-               registros[2]=rs.getString("CAN_ESTADO");
-               
-               
-               modelo.addRow(registros);
-               
-           }
+
+            while (rs.next()) {
+                registros[0] = rs.getString("CAN_ID_CANAL");
+                registros[1] = rs.getString("CAN_NOMBRE");
+                registros[2] = rs.getString("CAN_ESTADO");
+                int tipoObt= Integer.valueOf(registros[2]);
+                
+                if ((tipoObt == 0)){
+                    registros[2] = "Desactivado";
+                } else {
+                    registros[2] = "Activado";
+                }
+
+             modelo.addRow(new Object[]{registros[0],registros[1],registros[2]});
+                //modelo.addRow(registros);
            
+                
+                
+                }
+              
             Tabla_canal.setModel(modelo);
          
            
         } catch(Exception e){
             JOptionPane.showMessageDialog(null, "Error al mostrar datos" + e.getMessage());
         }
-   
-
-         
-
-}  
+        
+        } 
      
     public void DesplegarDatosBusca(String valor){
     DefaultTableModel modelo= new DefaultTableModel();
@@ -138,6 +160,7 @@ public class frmCanal extends javax.swing.JFrame {
                 datos[0]=rs.getString(1);
                 datos[1]=rs.getString(2);
                 datos[2]=rs.getString(3);
+   
                 modelo.addRow(datos);
             }
             Tabla_canal.setModel(modelo);
@@ -164,7 +187,6 @@ public class frmCanal extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         Tabla_canal = new javax.swing.JTable();
         btn_editar = new javax.swing.JButton();
-        btn_desactivar = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         jtxt_buscar = new javax.swing.JTextField();
         jPanel7 = new javax.swing.JPanel();
@@ -176,6 +198,7 @@ public class frmCanal extends javax.swing.JFrame {
         btn_guardar = new javax.swing.JButton();
         btn_buscar = new javax.swing.JButton();
         btn_reestalecer = new javax.swing.JButton();
+        btn_desactivar = new javax.swing.JButton();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -234,11 +257,11 @@ public class frmCanal extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Estado", "Código RRSS", "Nombre RRSS"
+                "Código RRSS", "Nombre RRSS", "Estado"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class
+                java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false
@@ -252,17 +275,16 @@ public class frmCanal extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        Tabla_canal.setColumnSelectionAllowed(true);
+        Tabla_canal.getTableHeader().setReorderingAllowed(false);
         Tabla_canal.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 Tabla_canalMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(Tabla_canal);
-        Tabla_canal.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        Tabla_canal.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         if (Tabla_canal.getColumnModel().getColumnCount() > 0) {
             Tabla_canal.getColumnModel().getColumn(0).setResizable(false);
-            Tabla_canal.getColumnModel().getColumn(0).setPreferredWidth(20);
             Tabla_canal.getColumnModel().getColumn(1).setResizable(false);
             Tabla_canal.getColumnModel().getColumn(2).setResizable(false);
         }
@@ -275,10 +297,7 @@ public class frmCanal extends javax.swing.JFrame {
                 btn_editarActionPerformed(evt);
             }
         });
-        jPanel1.add(btn_editar, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 320, 100, -1));
-
-        btn_desactivar.setText("Desactivar");
-        jPanel1.add(btn_desactivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 320, -1, -1));
+        jPanel1.add(btn_editar, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 320, 100, -1));
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel4.setText("Redes Sociales");
@@ -378,6 +397,14 @@ public class frmCanal extends javax.swing.JFrame {
         });
         jPanel1.add(btn_reestalecer, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 160, 110, -1));
 
+        btn_desactivar.setText("Desactivar");
+        btn_desactivar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_desactivarActionPerformed(evt);
+            }
+        });
+        jPanel1.add(btn_desactivar, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 320, 110, -1));
+
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 710, 370));
 
         pack();
@@ -385,8 +412,7 @@ public class frmCanal extends javax.swing.JFrame {
 
     private void btn_cancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_cancelarActionPerformed
       // TODO add your handling code here:
-      this.jtxt_CAN_NOMBRE.setText("");
-      this.jtxt_CAN_ID_CANAL.setText("");
+      
     }//GEN-LAST:event_btn_cancelarActionPerformed
 
     private void btn_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_guardarActionPerformed
@@ -550,6 +576,20 @@ public class frmCanal extends javax.swing.JFrame {
        MostrarDatos();
        this.jtxt_buscar.setText("");
     }//GEN-LAST:event_btn_reestalecerActionPerformed
+
+    private void btn_desactivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_desactivarActionPerformed
+
+
+        try {
+        PreparedStatement pst = con.prepareStatement("UPDATE canal SET CAN_ESTADO=0 WHERE CAN_ESTADO=1 AND CAN_ID_CANAL='"+jtxt_CAN_ID_CANAL.getText()+"'");
+        pst.executeUpdate();
+        JOptionPane.showMessageDialog(null, "Canal desactivado", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+        MostrarDatos();
+    } catch (Exception e) {
+        System.out.print(e.getMessage());
+          JOptionPane.showMessageDialog(null, "Error al intentar desactivar Canal", "AVISO", JOptionPane.ERROR_MESSAGE);
+    }
+    }//GEN-LAST:event_btn_desactivarActionPerformed
 
     /**
      * @param args the command line arguments

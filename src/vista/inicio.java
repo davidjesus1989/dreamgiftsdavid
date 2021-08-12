@@ -21,7 +21,7 @@ public class inicio {
        java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new frmCanal().setVisible(true);
-                
+               
     }
 
         });
