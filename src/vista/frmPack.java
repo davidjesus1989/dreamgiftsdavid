@@ -6,16 +6,34 @@
 package vista;
 
 import Conexion.Conexion;
+import static com.sun.source.tree.Tree.Kind.AND;
+import java.awt.Component;
 import java.sql.Connection;
+import java.sql.Date;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import controlador.Canal;
+import javax.swing.event.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.table.DefaultTableModel;
-import java.sql.*;
-import javax.swing.JOptionPane;
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 
 /**
  *
@@ -36,20 +54,20 @@ DefaultTableModel modelo;
     /**
      * Creates new form frmPack
      */
-    public frmPack() {
+    public frmPack()  {
         initComponents();
         DesplegarDatosBusca("");
-         setLocationRelativeTo(null);
-         MostrarDatos();
+        setLocationRelativeTo(null);
+        MostrarDatos();
     }
     
-    public void MostrarDatos(){
+    private void MostrarDatos(){
         
        
     
       
         String [] titulos = {"Código pack", "Nombre pack", "Unidades bodega", "Estado"};
-        String [] registros = new String [3];
+        String [] registros = new String [4];
         
        
        
@@ -66,28 +84,35 @@ DefaultTableModel modelo;
         try {
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(Sql);
-          
+        
            
 
             while (rs.next()) {
                 registros[0] = rs.getString("PCK_ID_PACK");
-                registros[1] = rs.getString("CAN_NOMBRE");
-                registros[2] = rs.getString("CAN_ESTADO");
-                int tipoObt= Integer.valueOf(registros[2]);
+                registros[1] = rs.getString("PCK_NOMBRE");
+                registros[2] = rs.getString("PCK_STOCK");
+                registros[3] = rs.getString("PCK_ESTADO");
+                int tipoObt2= Integer.valueOf(registros[3]);
                 
-                if ((tipoObt == 0)){
-                    registros[2] = "Desactivado";
+                if ((tipoObt2 == 0)){
+                    registros[3] = "Desactivado";
                 } else {
-                    registros[2] = "Activado";
+                    registros[3] = "Activado";
                 }
 
-             modelo.addRow(new Object[]{registros[0],registros[1],registros[2]});
+             modelo.addRow(new Object[]{registros[0],registros[1],registros[2],registros[3]});
                 //modelo.addRow(registros);
-           
-                
-                
             }
+            Tabla_pack.setModel(modelo);
+                
+        }   catch(Exception e){
+            JOptionPane.showMessageDialog(null, "Error al mostrar datos" + e.getMessage());
+        }
         
+    }
+        
+                
+            
     
     public void DesplegarDatosBusca(String valor){
     DefaultTableModel modelo= new DefaultTableModel();
@@ -105,18 +130,22 @@ DefaultTableModel modelo;
         //sql="SELECT * FROM canal WHERE CAN_ID_CANAL='"+valor+"'";
     }
  
-    String []datos = new String [3];
+    String []datos = new String [4];
         try {
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(sql);
             while(rs.next()){
-                datos[0]=rs.getString(1);
-                datos[1]=rs.getString(2);
-                datos[2]=rs.getString(3);
+                datos[0]=rs.getString("PCK_ID_PACK");
+                datos[1]=rs.getString("PCK_NOMBRE");
+                datos[2]=rs.getString("PCK_STOCK");
+                datos[3]=rs.getString("PCK_ESTADO");
+             
+                
    
+                //modelo.addRow(new Object[]{datos[0],datos[1],datos[2],datos[3]});
                 modelo.addRow(datos);
             }
-            Tabla_pack(modelo);
+            Tabla_pack.setModel(modelo);
         } catch (SQLException ex) {
             Logger.getLogger(frmCanal.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -146,6 +175,7 @@ DefaultTableModel modelo;
         jtxt_precio_pack = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
+        jtxt_codigopck = new javax.swing.JTextField();
         jtxt_buscar = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
@@ -229,6 +259,15 @@ DefaultTableModel modelo;
         jButton4.setText("Crear pack");
         jPanel1.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 170, -1, -1));
 
+        jtxt_codigopck.setEditable(false);
+        jtxt_codigopck.setEnabled(false);
+        jtxt_codigopck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jtxt_codigopckActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jtxt_codigopck, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 20, 80, -1));
+
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 20, 670, 200));
 
         jtxt_buscar.addActionListener(new java.awt.event.ActionListener() {
@@ -276,9 +315,14 @@ DefaultTableModel modelo;
         });
         jScrollPane3.setViewportView(Tabla_pack);
 
-        getContentPane().add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 260, 650, 107));
+        getContentPane().add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 260, 650, 107));
 
-        btn_editar.setText("Editar");
+        btn_editar.setText("Actualizar");
+        btn_editar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_editarActionPerformed(evt);
+            }
+        });
         getContentPane().add(btn_editar, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 380, 80, -1));
 
         btn_desactivar.setText("Desactivar");
@@ -298,6 +342,11 @@ DefaultTableModel modelo;
         getContentPane().add(btn_buscar, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 230, -1, -1));
 
         btn_reestablecer.setText("Reestablecer");
+        btn_reestablecer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_reestablecerActionPerformed(evt);
+            }
+        });
         getContentPane().add(btn_reestablecer, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 230, 100, -1));
 
         pack();
@@ -318,8 +367,8 @@ DefaultTableModel modelo;
     private void Tabla_packMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_Tabla_packMouseClicked
 
         int cor = Tabla_pack.getSelectedRow();
-        jtxt_CAN_ID_CANAL.setText(Tabla_pack.getValueAt(cor, 0).toString());
-        jtxt_CAN_NOMBRE.setText(Tabla_pack.getValueAt(cor, 1).toString());
+        jtxt_pack.setText(Tabla_pack.getValueAt(cor, 1).toString());
+        jtxt_codigopck.setText(Tabla_pack.getValueAt(cor, 0).toString());
 
     }//GEN-LAST:event_Tabla_packMouseClicked
 
@@ -333,17 +382,38 @@ DefaultTableModel modelo;
 
     private void btn_desactivarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_desactivarActionPerformed
                try {
-        PreparedStatement pst = con.prepareStatement("UPDATE canal SET CAN_ESTADO=0 WHERE CAN_ESTADO=1 AND CAN_ID_CANAL='"+jtxt_CAN_ID_CANAL.getText()+"'");
+        PreparedStatement pst = con.prepareStatement("UPDATE pack SET PCK_ESTADO=0 WHERE PCK_ESTADO=1 AND PCK_ID_PACK='"+jtxt_codigopck.getText()+"'");
         pst.executeUpdate();
-        JOptionPane.showMessageDialog(null, "Canal desactivado", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Pack desactivado", "Aviso", JOptionPane.INFORMATION_MESSAGE);
         MostrarDatos();
     } catch (Exception e) {
         System.out.print(e.getMessage());
-          JOptionPane.showMessageDialog(null, "Error al intentar desactivar Canal", "AVISO", JOptionPane.ERROR_MESSAGE);
+          JOptionPane.showMessageDialog(null, "Error al intentar desactivar Pack", "AVISO", JOptionPane.ERROR_MESSAGE);
     
     }                                            
 
     }//GEN-LAST:event_btn_desactivarActionPerformed
+
+    private void btn_reestablecerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_reestablecerActionPerformed
+          MostrarDatos();
+    }//GEN-LAST:event_btn_reestablecerActionPerformed
+
+    private void jtxt_codigopckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jtxt_codigopckActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jtxt_codigopckActionPerformed
+
+    private void btn_editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_editarActionPerformed
+        try {
+        PreparedStatement pst = con.prepareStatement("UPDATE pack SET PCK_NOMBRE='"+jtxt_pack.getText()+"' WHERE PCK_ID_PACK='"+jtxt_codigopck.getText()+"'");
+        pst.executeUpdate();
+        JOptionPane.showMessageDialog(null, "Nombre de canal actualizado", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+        MostrarDatos();
+    } catch (Exception e) {
+        System.out.print(e.getMessage());
+          JOptionPane.showMessageDialog(null, "Error al intentar guardar el Canal", "AVISO", JOptionPane.ERROR_MESSAGE);
+    }
+        
+    }//GEN-LAST:event_btn_editarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -378,7 +448,9 @@ DefaultTableModel modelo;
                 new frmPack().setVisible(true);
             }
         });
+    
     }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable Tabla_pack;
@@ -402,12 +474,11 @@ DefaultTableModel modelo;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextField jtxt_buscar;
+    private javax.swing.JTextField jtxt_codigopck;
     private javax.swing.JTextField jtxt_pack;
     private javax.swing.JTextField jtxt_precio_pack;
     private javax.swing.JTextField jtxt_unidades;
     // End of variables declaration//GEN-END:variables
 
-    private void Tabla_pack(DefaultTableModel modelo) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+  
 }
